@@ -61,7 +61,7 @@ healthscore_df = health_df.groupby("zip_code").agg(
 healthscore_df = healthscore_df.rename(
     columns={'health_score': 'Health Score'})
 
-print(healthscore_df)
+# print(healthscore_df)
 
 # healthscore_df = healthscore_df['Median Income'].apply(lambda x: "{:,}".format(x))
 
@@ -117,8 +117,9 @@ folium_static(MWmap, width=900, height=550)
 
 st.markdown("""
 ### Food Desert Project
-The map above plots the health score for Kentucky, Indiana, and Ohio. The health score ranges from 0-100, based off the factors below:
-- **San Francisco**: A major city in California known for the Golden Gate Bridge.
-- **Los Angeles**: Known for its Mediterranean climate and Hollywood entertainment industry.
-- **New York City**: Famous for its significant cultural, financial, and media impacts.
+The map above visualizes a food "health score" for Kentucky, Indiana, and Ohio based on data from Kroger-branded stores operating in a zipcode. 
+            The health score ranges from 0-100 is based on nutritional value based on data obtained from Open Food Facts & the factors below:
+- **Inventory**: Volume of products a particular Kroger-branded store is carrying.
+- **Price**: Cost of a product relative to its average price.
+
 """)
