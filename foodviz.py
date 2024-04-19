@@ -10,7 +10,7 @@ MWmap = fm.Map(location=[39.9137, -85.27474], tiles="CartoDB positron",
                name="Light Map", zoom_start=5.7, attr="My Data attribution")
 
 
-healthscore = f"data/sample_data.csv"  # Healthscore  data data with zipcodes
+healthscore = f"data/results.csv"  # Healthscore  data data with zipcodes
 usincome = f"data/usincome_filt.csv"
 merged_geo = f"data/midwest.geojson"
 towns = f"data/town_names.xlsx"
