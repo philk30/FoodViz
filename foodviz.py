@@ -56,10 +56,10 @@ health_df = health_df.merge(
     towns_df, left_on="zip_code", right_on="Zip Code", how="inner")
 
 healthscore_df = health_df.groupby("zip_code").agg(
-    {'health_score': 'mean', 'Median Income': 'first', 'Town Name': 'first'}).reset_index()
+    {'health_score': 'mean', 'Median Income': 'first', 'Town Name': 'first', 'locationId': 'count'}).reset_index()
 
 healthscore_df = healthscore_df.rename(
-    columns={'health_score': 'Health Score'})
+    columns={'health_score': 'Health Score', 'locationId': 'Stores'})
 
 # print(healthscore_df)
 
@@ -93,7 +93,7 @@ mp = fm.Choropleth(
 mp.add_to(MWmap)
 
 healthscore_df_indexed = healthscore_df.set_index('zip_code')
-
+t
 for s in mp.geojson.data['features']:
     try:
         s['properties']['Health Score'] = healthscore_df_indexed.loc[int(
@@ -102,12 +102,15 @@ for s in mp.geojson.data['features']:
             s['properties']['ZCTA5CE10']), 'Median Income']
         s['properties']['Town'] = healthscore_df_indexed.loc[int(
             s['properties']['ZCTA5CE10']), 'Town Name']
+        s['properties']['Num. of Stores'] = int(healthscore_df_indexed.loc[int(
+            s['properties']['ZCTA5CE10']), 'Stores'])
 
     except KeyError:
         continue
 
 
-fm.GeoJsonTooltip(['Town', 'Health Score', 'Median Income']).add_to(mp.geojson)
+fm.GeoJsonTooltip(['Town', 'Health Score', 'Median Income',
+                  'Num. of Stores']).add_to(mp.geojson)
 
 # fm.LayerControl().add_to(mp)
 
