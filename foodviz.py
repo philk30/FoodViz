@@ -2,10 +2,9 @@ import pandas as pd
 import streamlit as st
 import folium as fm
 import pandas as pd
-import geopandas as gpd
+# import geopandas as gpd
 from streamlit_folium import folium_static
-import json
-import matplotlib.pyplot as plt
+# import json
 import plotly.express as px
 
 MWmap = fm.Map(location=[39.9137, -85.27474], tiles="CartoDB positron",
