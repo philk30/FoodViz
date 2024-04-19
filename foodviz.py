@@ -5,6 +5,8 @@ import pandas as pd
 import geopandas as gpd
 from streamlit_folium import folium_static
 import json
+import matplotlib.pyplot as plt
+import plotly.express as px
 
 MWmap = fm.Map(location=[39.9137, -85.27474], tiles="CartoDB positron",
                name="Light Map", zoom_start=5.7, attr="My Data attribution")
@@ -59,7 +61,7 @@ healthscore_df = health_df.groupby("zip_code").agg(
     {'health_score': 'mean', 'Median Income': 'first', 'Town Name': 'first', 'locationId': 'count'}).reset_index()
 
 healthscore_df = healthscore_df.rename(
-    columns={'health_score': 'Health Score', 'locationId': 'Stores'})
+    columns={'health_score': 'Nutritional Attainment Score', 'locationId': 'Stores'})
 
 # print(healthscore_df)
 
@@ -73,7 +75,8 @@ healthscore_df = healthscore_df.rename(
 # healthscore_df["Households Median Income (Dollars)"] = healthscore_df["Households Median Income (Dollars)"].astype(float)
 
 
-choice = ["Health Score"]  # drop down selections.
+# drop down selections.
+choice = ["Nutritional Attainment Score", "Median Income"]
 choice_selected = st.selectbox("Choose", choice)
 
 mp = fm.Choropleth(
@@ -81,7 +84,6 @@ mp = fm.Choropleth(
     name="choropleth",
     data=healthscore_df,
     columns=["zip_code", choice_selected],
-    # understand how to get the loop down to the string
     key_on="feature.properties.ZCTA5CE10",
     fill_color="YlOrRd",
     fill_opacity=0.7,
@@ -96,8 +98,8 @@ healthscore_df_indexed = healthscore_df.set_index('zip_code')
 
 for s in mp.geojson.data['features']:
     try:
-        s['properties']['Health Score'] = healthscore_df_indexed.loc[int(
-            s['properties']['ZCTA5CE10']), 'Health Score']
+        s['properties']['Nutri. Score'] = healthscore_df_indexed.loc[int(
+            s['properties']['ZCTA5CE10']), 'Nutritional Attainment Score']
         s['properties']['Median Income'] = healthscore_df_indexed.loc[int(
             s['properties']['ZCTA5CE10']), 'Median Income']
         s['properties']['Town'] = healthscore_df_indexed.loc[int(
@@ -109,10 +111,8 @@ for s in mp.geojson.data['features']:
         continue
 
 
-fm.GeoJsonTooltip(['Town', 'Health Score', 'Median Income',
+fm.GeoJsonTooltip(['Town', 'Nutri. Score', 'Median Income',
                   'Num. of Stores']).add_to(mp.geojson)
-
-# fm.LayerControl().add_to(mp)
 
 
 folium_static(MWmap, width=900, height=550)
@@ -120,9 +120,39 @@ folium_static(MWmap, width=900, height=550)
 
 st.markdown("""
 ### Food Desert Project
-The map above visualizes a food "health score" for Kentucky, Indiana, and Ohio based on data from Kroger-branded stores operating in a zipcode. 
+The map above visualizes a Nutritional Attainment Score for Kentucky, Indiana, and Ohio based on data from Kroger-branded stores operating in a zipcode. 
             The health score ranges from 0-100 is based on nutritional value based on data obtained from Open Food Facts & the factors below:
 - **Inventory**: Volume of products a particular Kroger-branded store is carrying.
+- **Open Food Facts Score**: Nutri-Scores exist from -15 to 40, -15 representing the healthiest possible score and 40 representing the unhealthiest score.
 - **Price**: Cost of a product relative to its average price.
 
 """)
+
+
+fig2 = px.scatter(
+    healthscore_df,
+    x='Median Income',
+    y='Nutritional Attainment Score',
+    size='Stores',  # Circle size represents number of stores
+    # color='zip_code',  # Color distinguishes zip codes
+    hover_name='Town Name',  # Shows zip code on hover
+    hover_data={'Median Income': False, 'Nutritional Attainment Score': True,
+                'Stores': True},  # Additional data to show on hover
+    title='Nutritional Attainment Score vs. Median Income by Town',
+    color_discrete_sequence=['#FF4500'],
+    labels={'income': 'Median Income',
+            'health_score': 'Nutritional Attainment Score'}  # Labeling axes
+)
+
+fig2.update_layout({
+    # white background for the plotting area
+    'plot_bgcolor': 'rgba(242, 242, 242, 1)',
+    'title': {'text': 'Nutritional Attainment Score vs. Median Income by Town', 'x': 0.5, 'xanchor': 'center', 'font': {'size': 24}},
+    'xaxis_title': 'Median Household Income',
+    'yaxis_title': 'Nutritional Attainment Score',
+    'xaxis': {'title_font': {'size': 18}},
+    'yaxis': {'title_font': {'size': 18}},
+})
+fig2.update_layout(height=550)
+
+st.plotly_chart(fig2, use_container_width=True)
