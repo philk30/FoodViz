@@ -93,7 +93,7 @@ mp = fm.Choropleth(
 mp.add_to(MWmap)
 
 healthscore_df_indexed = healthscore_df.set_index('zip_code')
-t
+
 for s in mp.geojson.data['features']:
     try:
         s['properties']['Health Score'] = healthscore_df_indexed.loc[int(
